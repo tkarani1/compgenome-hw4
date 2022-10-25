@@ -1,19 +1,4 @@
 
-# def parse_fastq(fh):
-#     """ Parse reads from a FASTQ filehandle.  For each read, we
-#         return a name, nucleotide-string, quality-string triple. """
-#     reads = []
-#     while True:
-#         first_line = fh.readline()
-#         if len(first_line) == 0:
-#             break  # end of file
-#         name = first_line[1:].rstrip()
-#         seq = fh.readline().rstrip()
-#         fh.readline()  # ignore line starting with +
-#         qual = fh.readline().rstrip()
-#         reads.append((name, seq, qual))
-#     return reads
-
 def parse_fastq(fh):
     """ Parse reads from a FASTQ filehandle.  For each read, we
         return a name, nucleotide-string, quality-string triple. """
@@ -42,19 +27,6 @@ def make_kmer_table(seqs, k):
             if kmer not in table:
                 table[kmer] = set()
             table[kmer].add(name)
-    return table
-
-def make_kmer_table1(seqs, k):
-    """ Given read dictionary and integer k, return a dictionary that
-        maps each k-mer to the set of names of reads containing the k-mer. """
-    table = {}
-    for name, seq in seqs.items():
-        for i in range(0, len(seq) - k + 1):
-            kmer = seq[i:i+k]
-            if kmer not in table:
-                table[kmer] = set()
-            table[kmer].add(name)
-
     return table
 
 def make_prefix_kmer_table(seqs, k):
