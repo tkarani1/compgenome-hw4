@@ -40,18 +40,25 @@ def make_BMR_BML(records):
 
 def has_unique_match(id, t1, t2): 
     t2_matches = t1[id]
+    
     if len(t2_matches) > 1: 
-        return ''
+        return '', 0
     t2_match, match_len = (t2_matches[0])[0], (t2_matches[0])[1]
 
     t1_matches_t2 = t2[t2_match]
+
+    if (len(t1_matches_t2) == 0): 
+        return '', 0
+    
     if len(t1_matches_t2) > 1: 
-        return ''
+        return '', 0
     
     t1_match = (t1_matches_t2[0])[0]
 
     if (id == t1_match): 
         return t2_match, match_len
+    
+    return '', 0
 
 from io import StringIO
 import sys
@@ -75,13 +82,19 @@ unitigs = {}
 unitig_output = {}
 last_first = {} # key: final character in unitig, val: first character in unitig
 
+print(BMR)
+print(BML)
+
 all_ids = set(BMR.keys()) | set(BML.keys())
 print(all_ids)
 
 for id in all_ids: 
     if id in BMR: 
         # check if unambiguous match?
-        bmr = has_unique_match(id, BMR, BML)
+        print(id)
+        bmr, nt = has_unique_match(id, BMR, BML)
+        print(bmr)
+        print(nt)
         if (bmr == ''): # no unambiguous match 
             unitigs[id] = [id]
             last_first[id] = id
@@ -120,9 +133,17 @@ for id in all_ids:
         continue
     
     else: # id is not in bmr
-        
+        if id in BML:
+            bml, nt = has_unique_match(id, BML, BMR)
+            if (bml == ''): # no match
+                unitigs[id] = [id]
+                last_first[id] = [id]
+            else:   # when match exists, id will be added to unitig by it's bmr
+                continue 
 
-    
+# print(unitigs)
+print('num unitigs: ', str(len(unitigs.keys()))) 
+
 # format output
 sorted_output = sorted(unitig_output.items())
 output_txt = ''
