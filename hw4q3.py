@@ -13,7 +13,6 @@ def make_BMR_BML(records):
     BMR = {}
     BML = {}
 
-    # TIES?!?!
     for (left, nt, right) in records: 
         if left in BMR: 
             best_id, best_nt = (BMR[left])[0]
@@ -44,7 +43,6 @@ def make_best_pairs(BMR, BML):
         nt = right[0][1]
         right = right[0][0]
         
-
         if (len(BML[right]) > 1): 
             continue 
 
@@ -134,36 +132,16 @@ for ((left, right), nt) in pairs.items():
         last_first[seq[-1]] = new_right
 
 
-
-
-#print(unitigs)
-print(str(len(unitigs.keys())))
-
-# with open("files/unitigs_f.txt", 'w') as f: 
-#     for key, value in unitigs.items(): 
-#         f.write('%s:%s\n' % (key, value))
-
-# with open("files/BMR_f.txt", 'w') as f: 
-#     for key, value in BMR.items(): 
-#         f.write('%s:%s\n' % (key, value))
-
-# with open("files/BML_f.txt", 'w') as f: 
-#     for key, value in BML.items(): 
-#         f.write('%s:%s\n' % (key, value))
-
 # format output summary
+
 sorted_unitigs = sorted(unitigs.items())
 output_str = ''
 for i, (f, unitig) in enumerate(sorted_unitigs): 
-    print(i)
-    print(f)
-    print(unitig)
     for i in range(len(unitig) - 1): 
         output_str += unitig[i] + '\n' + str(pairs[(unitig[i], unitig[i+1])]) + ' '
     output_str += unitig[-1]
     output_str += '\n'
 output_str = output_str.rstrip()
-print(output_str)
 
 
 # output to file
