@@ -86,23 +86,6 @@ for (left, right) in sorted_BMR:
         del BMR[left]
         continue
 
-    # if (left == '0130/1'): 
-    #     with open("files/unitigs_here1.txt", 'w') as f: 
-    #         for key, value in unitigs.items(): 
-    #             f.write('%s:%s\n' % (key, value))
-
-    #     with open("files/BMR_here1.txt", 'w') as f: 
-    #         for key, value in BMR.items(): 
-    #             f.write('%s:%s\n' % (key, value))
-
-    #     with open("files/BML_here1.txt", 'w') as f: 
-    #         for key, value in BML.items(): 
-    #             f.write('%s:%s\n' % (key, value))
-
-    #     with open("files/LF_here1.txt", 'w') as f: 
-    #         for key, value in last_first.items(): 
-    #             f.write('%s:%s\n' % (key, value))
-
     # Left and Right are mutual best matches
 
     # DOES THIS SAVE COMPUTATION
@@ -114,36 +97,9 @@ for (left, right) in sorted_BMR:
         # make a new unitig
 
     if (right not in unitigs and left not in last_first): 
-        if (left == '0130/1'): 
-            print('1')
         unitigs[left] = [left, right]
         last_first[right] = left
         continue
-
-    if (right in unitigs and left in last_first): 
-
-        # choose to prepend
-        seq = unitigs[right]
-        del unitigs[right]
-        seq = [left] + seq
-        unitigs[left] = seq
-
-        final = (unitigs[left])[-1]
-        last_first[final] = left
-
-        # prepend the left sequence
-        if (left in unitigs): 
-            new_right = last_first[left]
-            seq = unitigs[new_right]
-            del unitigs[new_right]
-            del last_first[left]
-            seq = seq[:-1] + unitigs[left]
-            del unitigs[left]
-            unitigs[new_right] = seq
-            last_first[seq[-1]] = new_right
-        continue
-
-
 
     # Case 2: Prepend
         # if right is the key of a unitig, concatenate strings
@@ -161,27 +117,9 @@ for (left, right) in sorted_BMR:
         final = (unitigs[left])[-1]
         last_first[final] = left
 
-        # if (left == '0130/1'): 
-        #     with open("files/unitigs_here2.txt", 'w') as f: 
-        #         for key, value in unitigs.items(): 
-        #             f.write('%s:%s\n' % (key, value))
-
-        #     with open("files/BMR_here2.txt", 'w') as f: 
-        #         for key, value in BMR.items(): 
-        #             f.write('%s:%s\n' % (key, value))
-
-        #     with open("files/BML_here2.txt", 'w') as f: 
-        #         for key, value in BML.items(): 
-        #             f.write('%s:%s\n' % (key, value))
-
-        #     with open("files/LF_here2.txt", 'w') as f: 
-        #         for key, value in last_first.items(): 
-        #             f.write('%s:%s\n' % (key, value))
-
     # Case 3: Append
         # the rightmost character is the final character in another unitig
-    if (left in last_first):
-        print('hi')
+    elif (left in last_first):
         start = last_first[left]
         seq = unitigs[start]
         seq = seq + [right]
@@ -189,7 +127,18 @@ for (left, right) in sorted_BMR:
         
         del last_first[left]
         last_first[right] = start
-        continue
+
+    # merge two instances in unitigs
+    if (left in unitigs and left in last_first): 
+        new_right = last_first[left]
+        seq = unitigs[new_right]
+        del unitigs[new_right]
+        del last_first[left]
+        seq = seq[:-1] + unitigs[left]
+        del unitigs[left]
+        unitigs[new_right] = seq
+        last_first[seq[-1]] = new_right
+
 
 
 
@@ -207,6 +156,13 @@ with open("files/BMR_f.txt", 'w') as f:
 with open("files/BML_f.txt", 'w') as f: 
     for key, value in BML.items(): 
         f.write('%s:%s\n' % (key, value))
+
+sorted_unitigs = sorted(unitigs.items())
+# print(sorted_unitigs[0])
+# print(sorted_unitigs[0][0])
+# print(sorted_unitigs[0][1])
+# print(sorted_unitigs[0][1][0])
+
 
 # format output
 sorted_output = sorted(unitig_output.items())
