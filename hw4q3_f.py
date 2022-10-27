@@ -1,6 +1,3 @@
-# IS KEEPING THE WHOLE STRING OKAY (too much data?)
-# HOW TO GET RID OF SOME?
-
 def parse_suf_pref_record(fh): 
     records = []
     while True:
@@ -12,7 +9,6 @@ def parse_suf_pref_record(fh):
         records.append((left, int(nt), right))
     return records
 
-# COMBINE W PREVIOUS FUNCTION?
 def make_BMR_BML(records): 
     BMR = {}
     BML = {}
@@ -39,6 +35,26 @@ def make_BMR_BML(records):
             BML[right] = [(left, nt)]
     return BMR, BML
 
+def make_best_pairs(BMR, BML): 
+    match_pairs = {}
+    for (left, right) in BMR.items(): 
+        if (len(right) > 1): 
+            continue
+
+        nt = right[0][1]
+        right = right[0][0]
+        
+
+        if (len(BML[right]) > 1): 
+            continue 
+
+        if (BML[right])[0][0] != left:  # not a mutual best match
+            continue
+
+        match_pairs[(left, right)] = nt
+
+    return match_pairs
+
 from io import StringIO
 import sys
 import numpy as np
@@ -56,35 +72,18 @@ records = parse_suf_pref_record(input_fp)
 input_fp.close()
 
 BMR, BML = make_BMR_BML(records)
+pairs = make_best_pairs(BMR, BML)
 
 unitigs = {} # key: first id in the unitig, value: a list of the unitigs
 unitig_output = {}
 last_first = {} # key: final id in unitig, val: first character in unitig
 
 
-sorted_BMR = sorted(BMR.items())
-
-
-for (left, right) in sorted_BMR: 
+for ((left, right), nt) in pairs.items(): 
     # RIGHT NOT IN BML?!?!?
     # if (right not in BML):
     #     unitigs[left] = ''
     #     continue
-        
-
-    if (len(right) > 1): 
-        del BMR[left]
-        continue
-
-    right = right[0][0]
-    
-    if (len(BML[right]) > 1): 
-        del BMR[left]
-        continue 
-
-    if (BML[right])[0][0] != left:  # not a mutual best match
-        del BMR[left]
-        continue
 
     # Left and Right are mutual best matches
 
@@ -108,11 +107,6 @@ for (left, right) in sorted_BMR:
         del unitigs[right]
         seq = [left] + seq
         unitigs[left] = seq
-
-        # seq_str = unitig_output[right]
-        # del unitig_output[right]
-        # seq_str = left + '\n' + str(nt) + ' ' + right + '\n' + seq_str[2:] <-- WONT WORK BC ID IS LONGER!
-        # unitig_output[left] = seq_str
 
         final = (unitigs[left])[-1]
         last_first[final] = left
@@ -145,35 +139,35 @@ for (left, right) in sorted_BMR:
 #print(unitigs)
 print(str(len(unitigs.keys())))
 
-with open("files/unitigs_f.txt", 'w') as f: 
-    for key, value in unitigs.items(): 
-        f.write('%s:%s\n' % (key, value))
+# with open("files/unitigs_f.txt", 'w') as f: 
+#     for key, value in unitigs.items(): 
+#         f.write('%s:%s\n' % (key, value))
 
-with open("files/BMR_f.txt", 'w') as f: 
-    for key, value in BMR.items(): 
-        f.write('%s:%s\n' % (key, value))
+# with open("files/BMR_f.txt", 'w') as f: 
+#     for key, value in BMR.items(): 
+#         f.write('%s:%s\n' % (key, value))
 
-with open("files/BML_f.txt", 'w') as f: 
-    for key, value in BML.items(): 
-        f.write('%s:%s\n' % (key, value))
+# with open("files/BML_f.txt", 'w') as f: 
+#     for key, value in BML.items(): 
+#         f.write('%s:%s\n' % (key, value))
 
+# format output summary
 sorted_unitigs = sorted(unitigs.items())
-# print(sorted_unitigs[0])
-# print(sorted_unitigs[0][0])
-# print(sorted_unitigs[0][1])
-# print(sorted_unitigs[0][1][0])
+output_str = ''
+for i, (f, unitig) in enumerate(sorted_unitigs): 
+    print(i)
+    print(f)
+    print(unitig)
+    for i in range(len(unitig) - 1): 
+        output_str += unitig[i] + '\n' + str(pairs[(unitig[i], unitig[i+1])]) + ' '
+    output_str += unitig[-1]
+    output_str += '\n'
+output_str = output_str.rstrip()
+print(output_str)
 
-
-# format output
-sorted_output = sorted(unitig_output.items())
-output_txt = ''
-
-for i, (first, str) in enumerate(sorted_output): 
-    output_txt += str
-output_txt = output_txt.rstrip()
 
 # output to file
 output_fp = open(output_fname, 'w')
-output_fp.write(output_txt)
+output_fp.write(output_str)
 output_fp.close()
 
